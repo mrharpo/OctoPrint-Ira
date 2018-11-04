@@ -3,6 +3,8 @@ from __future__ import absolute_import
 from serial import Serial
 from cobs import cobs
 from struct import pack
+# from os import excel
+from glob import glob
 port = '/dev/ttyUSB0'
 baud = 1200
 # from time import sleep
@@ -12,17 +14,24 @@ baud = 1200
 
 
 import octoprint.plugin
+from octoprint.printer import PrinterInterface
 
 class Ira(octoprint.plugin.StartupPlugin,
 		octoprint.plugin.TemplatePlugin,
 		octoprint.plugin.SettingsPlugin,
 		octoprint.plugin.AssetPlugin,
 		octoprint.plugin.EventHandlerPlugin,
-		octoprint.plugin.ProgressPlugin):
+		octoprint.plugin.ProgressPlugin,
+		PrinterInterface):
+	interface = PrinterInterface()
 	try:
+		for p in glob('/dev/ttyUSB[0-9]'):
+			self._logger('testing %s' % p)
+			excel(["udevadm", "info", "-a", "-n", port])
 		serial = Serial(port, baud, )
 	except:
 		serial = None
+
 	def send(self, *args):
 		p = cobs.encode(pack('>{}B'.format(len(args)), *args)) + b'\x00'
 		if self.serial is not None:
@@ -78,8 +87,11 @@ class Ira(octoprint.plugin.StartupPlugin,
 		# return
 	def on_print_progress(self, storage, path, progress):
 			if progress < 100:
-				self._logger.info("FX: progress: %s" % progress)
-				self.send(255,progress)
+				temps = self._printer.get_current_temperatures()
+				bed = temps['bed']['actual']
+				tool = temps['tool0']['actual']
+				self._logger.info("FX: progress: %s, bed: %s tool: %s" % (progress, bed, tool))
+				self.send(255, progress, bed, tool)
 
 	def on_startup(self, a, b):
 		self._logger.info("pIra starting! ")

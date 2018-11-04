@@ -1,0 +1,19 @@
+
+
+alias py="python3.7"
+alias python3="python3.7"
+alias pi="sudo pip3.7 install -U"
+`
+alias i="sudo apt install -y"
+alias g="py /george/scripts/g.py"
+
+alias gita="git add . && git commit && git pull && git push"
+export GPG_TTY=$(tty)
+export PINENTRY_USER_DATA="USE_CURSES=1"
+
+alias sftp="with-readline sftp"
+
+
+
+export PYTHONSTARTUP=~/.pythonrc
+
