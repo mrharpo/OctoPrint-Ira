@@ -5,7 +5,7 @@ from cobs import cobs
 from struct import pack
 # from os import excel
 from glob import glob
-port = '/dev/ttyUSB0'
+port = '/dev/ttyUSB1'
 baud = 1200
 # from time import sleep
 
@@ -17,19 +17,21 @@ import octoprint.plugin
 from octoprint.printer import PrinterInterface
 
 class Ira(octoprint.plugin.StartupPlugin,
-		octoprint.plugin.TemplatePlugin,
+#		octoprint.plugin.TemplatePlugin,
 		octoprint.plugin.SettingsPlugin,
-		octoprint.plugin.AssetPlugin,
+#		octoprint.plugin.AssetPlugin,
 		octoprint.plugin.EventHandlerPlugin,
 		octoprint.plugin.ProgressPlugin,
 		PrinterInterface):
 	interface = PrinterInterface()
 	try:
-		for p in glob('/dev/ttyUSB[0-9]'):
-			self._logger('testing %s' % p)
-			excel(["udevadm", "info", "-a", "-n", port])
+		# ports = [p for p in glob('/dev/ttyUSB[0-9]')]
+		# _logger.info('found ports %s' % ports)
+			#excel(["udevadm", "info", "-a", "-n", port])
+
 		serial = Serial(port, baud, )
 	except:
+		# _logger.error('unable to connect to Ira!')
 		serial = None
 
 	def send(self, *args):
@@ -70,8 +72,8 @@ class Ira(octoprint.plugin.StartupPlugin,
 			self._logger.info("FX: rain - red")
 			self.send(102,255,0,0)
 		elif event == 'PrintDone':
-			self._logger.info("FX: sparkle - green")
-			self.send(127,0,255,0)
+			self._logger.info("FX: rain - green")
+			self.send(102,0,255,0)
 		elif event == 'PrintCancelling':
 			self._logger.info("FX: rain - orange")
 			self.send(102,255,125,0)
@@ -104,14 +106,14 @@ class Ira(octoprint.plugin.StartupPlugin,
 	def get_settings_defaults(self):
 		return dict(url="https://apothecary.kagstrom.guru")
 
-	def get_template_vars(self):
-		return dict(url=self._settings.get(["url"]))
-	def get_template_configs(self):
-		return [
-			dict(type="navbar", custom_bindings=False),
-			dict(type="settings", custom_bindings=False)
-			]
-	def get_assets(self):
-		return dict(js=["js/Ira.js"])
+	# def get_template_vars(self):
+	# 	return dict(url=self._settings.get(["url"]))
+	# def get_template_configs(self):
+	# 	return [
+	# 		dict(type="navbar", custom_bindings=False),
+	# 		dict(type="settings", custom_bindings=False)
+	# 		]
+	# def get_assets(self):
+	# 	return dict(js=["js/Ira.js"])
 __plugin_name__="Ira"
 __plugin_implementation__ = Ira()
