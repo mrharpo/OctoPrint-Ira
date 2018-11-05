@@ -47,8 +47,8 @@ class Ira(octoprint.plugin.StartupPlugin,
 	def on_event(self, event, payload):
 		self._logger.info("Event: %s Payload: %s" % (event, payload))
 		if event == 'Startup':
-			self._logger.info("FX: Loading teal")
-			self.send(0,0,255,255)
+			self._logger.info("FX: rain - teal")
+			self.send(102,127,255,255)
 		elif event == 'PrinterStateChanged':
 			if payload['state_id'] == 'OFFLINE':
 				self._logger.info("FX: wash - red")
@@ -61,7 +61,7 @@ class Ira(octoprint.plugin.StartupPlugin,
 			self.send(102,0,0,255)
 		elif event == 'Connected':
 			self._logger.info("FX: wash - green")
-			self.send(0,0,255,0)
+			self.send(0,8,255,8)
 		elif event == 'Error':
 			self._logger.info("FX: wash - red")
 			self.send(0,255,0,0)
@@ -73,13 +73,13 @@ class Ira(octoprint.plugin.StartupPlugin,
 			self.send(102,255,0,0)
 		elif event == 'PrintDone':
 			self._logger.info("FX: rain - green")
-			self.send(102,0,255,0)
+			self.send(102,8,255,8)
 		elif event == 'PrintCancelling':
 			self._logger.info("FX: rain - orange")
 			self.send(102,255,125,0)
 		elif event == 'PrintCancelled':
-			self._logger.info("FX: wash - yellow")
-			self.send(0,255,255,0)
+			self._logger.info("FX: wash - orange")
+			self.send(0,255,125,0)
 		elif event == 'PrintPaused':
 			self._logger.info("FX: rain - yellow")
 			self.send(102,255,255,0)
