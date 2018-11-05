@@ -15,6 +15,7 @@ baud = 1200
 
 import octoprint.plugin
 from octoprint.printer import PrinterInterface
+from octoprint.util import RepeatedTimer
 
 class Ira(octoprint.plugin.StartupPlugin,
 #		octoprint.plugin.TemplatePlugin,
@@ -22,8 +23,36 @@ class Ira(octoprint.plugin.StartupPlugin,
 #		octoprint.plugin.AssetPlugin,
 		octoprint.plugin.EventHandlerPlugin,
 		octoprint.plugin.ProgressPlugin,
-		PrinterInterface):
+		PrinterInterface,
+		RepeatedTimer):
 	interface = PrinterInterface()
+
+	def getTemps(self):
+		temps = self._printer.get_current_temperatures()
+		bed = temps['bed']['actual']
+		try:
+			tool = temps['tool0']['actual']
+			return (bed, tool)
+		except:
+			self._logger.error('no tool! %s' % temps)
+			return (bed, 0)
+	def showProgress(self):
+		bed, tool = self.getTemps()
+		self._logger.info("FX: progress: %s, bed: %s tool: %s" % (self.progress, bed, tool))
+		self.send(255, self.progress, bed, tool)
+
+
+		timer = None
+	def startTimer(self):
+		self.timer = RepeatedTimer(1.0, self.showProgress)
+		self.timer.start()
+		self._logger.info('timer started! %s' % self.timer)
+
+	def stopTimer(self):
+		self.timer.cancel()
+		self._logger.info('timer stopped')
+
+	progress = None
 	try:
 		# ports = [p for p in glob('/dev/ttyUSB[0-9]')]
 		# _logger.info('found ports %s' % ports)
@@ -68,32 +97,41 @@ class Ira(octoprint.plugin.StartupPlugin,
 		elif event == 'PrintStarted':
 			self._logger.info("FX: cylon - green")
 			self.send(27,0,255,0)
+			self.startTimer()
 		elif event == 'PrintFailed':
 			self._logger.info("FX: rain - red")
 			self.send(102,255,0,0)
+			self.stopTimer()
 		elif event == 'PrintDone':
 			self._logger.info("FX: rain - green")
 			self.send(102,8,255,8)
+			self.stopTimer()
 		elif event == 'PrintCancelling':
 			self._logger.info("FX: rain - orange")
 			self.send(102,255,125,0)
+			self.stopTimer()
 		elif event == 'PrintCancelled':
 			self._logger.info("FX: wash - orange")
 			self.send(0,255,125,0)
+			self.stopTimer()
 		elif event == 'PrintPaused':
 			self._logger.info("FX: rain - yellow")
 			self.send(102,255,255,0)
-
+			self.stopTimer()
+		elif event == 'PrintResumed':
+			self._logger.info("FX: cylon - green")
+			self.send(27,0,255,0)
+			self.startTimer()
+		# elif event == 'PositionUpdate':
+			# self._logger.info()
+			# self.showProgress()
 		# self._logger.info(event)
 		# self._logger.info(payload)
 		# return
 	def on_print_progress(self, storage, path, progress):
-			if progress < 100:
-				temps = self._printer.get_current_temperatures()
-				bed = temps['bed']['actual']
-				tool = temps['tool0']['actual']
-				self._logger.info("FX: progress: %s, bed: %s tool: %s" % (progress, bed, tool))
-				self.send(255, progress, bed, tool)
+		self.progress = progress
+		if progress < 100:
+			self.showProgress()
 
 	def on_startup(self, a, b):
 		self._logger.info("pIra starting! ")
@@ -105,6 +143,9 @@ class Ira(octoprint.plugin.StartupPlugin,
 
 	def get_settings_defaults(self):
 		return dict(url="https://apothecary.kagstrom.guru")
+
+	# def shouldWeStop():
+	# 	if self.state in [""]
 
 	# def get_template_vars(self):
 	# 	return dict(url=self._settings.get(["url"]))
