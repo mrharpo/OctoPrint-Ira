@@ -19,9 +19,11 @@ $(function() {
         };
 
         self.cmd = ko.observable();
+        self.log = ko.observableArray([]);
         self.sendSerial = function(cmd) {
           console.log('sending serial command', cmd);
-          self.cmd()
+          self.cmd(self.newUrl());
+          self.log.push(self.newUrl());
         };
 
         // This will get called before the HelloWorldViewModel gets bound to the DOM, but after its
