@@ -18,9 +18,9 @@ from octoprint.printer import PrinterInterface
 from octoprint.util import RepeatedTimer
 
 class Ira(octoprint.plugin.StartupPlugin,
-#		octoprint.plugin.TemplatePlugin,
+		octoprint.plugin.TemplatePlugin,
 		octoprint.plugin.SettingsPlugin,
-#		octoprint.plugin.AssetPlugin,
+		octoprint.plugin.AssetPlugin,
 		octoprint.plugin.EventHandlerPlugin,
 		octoprint.plugin.ProgressPlugin,
 		PrinterInterface,
@@ -53,10 +53,12 @@ class Ira(octoprint.plugin.StartupPlugin,
 		self._logger.info('timer stopped')
 
 	progress = None
+	ports = None
 	try:
 		# ports = [p for p in glob('/dev/ttyUSB[0-9]')]
 		# _logger.info('found ports %s' % ports)
 			#excel(["udevadm", "info", "-a", "-n", port])
+		ports = interface.get_connection_options()
 
 		serial = Serial(port, baud, )
 	except:
@@ -134,27 +136,26 @@ class Ira(octoprint.plugin.StartupPlugin,
 			self.showProgress()
 
 	def on_startup(self, a, b):
-		self._logger.info("pIra starting! ")
-		self._logger.info(a)
-		self._logger.info(b)
+		self._logger.info("pIra starting! %s %s" % (a, b) )
+		self._logger.info("available connections: %s" % self.ports['ports'])
 	def on_after_startup(self):
 		self._logger.info("pIra running!")
 		self._settings.get(["url"])
 
 	def get_settings_defaults(self):
-		return dict(url="https://apothecary.kagstrom.guru")
+		return dict(url="https://apothecary.kagstrom.guru",
+			ports=self.ports)
 
 	# def shouldWeStop():
 	# 	if self.state in [""]
 
-	# def get_template_vars(self):
-	# 	return dict(url=self._settings.get(["url"]))
-	# def get_template_configs(self):
-	# 	return [
-	# 		dict(type="navbar", custom_bindings=False),
-	# 		dict(type="settings", custom_bindings=False)
-	# 		]
-	# def get_assets(self):
-	# 	return dict(js=["js/Ira.js"])
+	def get_template_configs(self):
+		return [
+			dict(type="navbar", custom_bindings=False),
+			dict(type="settings", custom_bindings=False),
+			dict(type="tab", custom_bindings=False)
+		]
+	def get_assets(self):
+		return dict(js=["js/Ira.js"])
 __plugin_name__="Ira"
 __plugin_implementation__ = Ira()

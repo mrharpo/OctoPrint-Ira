@@ -10,10 +10,18 @@ $(function() {
         // this will hold the URL entered in the text field
         self.newUrl = ko.observable();
 
+        self.ports = ko.observableArray();
+
         // this will be called when the user clicks the "Go" button and set the iframe's URL to
         // the entered URL
         self.goToUrl = function() {
             self.currentUrl(self.newUrl());
+        };
+
+        self.cmd = ko.observable();
+        self.sendSerial = function(cmd) {
+          console.log('sending serial command', cmd);
+          self.cmd()
         };
 
         // This will get called before the HelloWorldViewModel gets bound to the DOM, but after its
@@ -23,6 +31,8 @@ $(function() {
         self.onBeforeBinding = function() {
             self.newUrl(self.settings.settings.plugins.Ira.url());
             self.goToUrl();
+            self.ports(self.settings.settings.plugins.Ira.ports);
+            // self.cmd(self.settings.settings.plugins.Ira.cmd());
         }
     }
 
