@@ -144,7 +144,7 @@ class Ira(octoprint.plugin.StartupPlugin,
 
 	def get_settings_defaults(self):
 		return dict(url="https://apothecary.kagstrom.guru",
-			ports=self.ports)
+			ports=self.ports['ports'])
 
 	# def shouldWeStop():
 	# 	if self.state in [""]
