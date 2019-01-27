@@ -24,7 +24,12 @@ $(function() {
           console.log('sending serial command', newCmd);
           self.cmd(self.newUrl());
           self.log.push(self.cmd());
+
+          self.settings.settings.plugins.Ira.send(self.cmd());
         };
+        self.toggleConnect = function() {
+          console.log('toggling connection');
+        }
 
         // This will get called before the HelloWorldViewModel gets bound to the DOM, but after its
         // dependencies have already been initialized. It is especially guaranteed that this method
@@ -33,7 +38,7 @@ $(function() {
         self.onBeforeBinding = function() {
             self.newUrl(self.settings.settings.plugins.Ira.url());
             self.goToUrl();
-            self.ports(self.settings.settings.plugins.Ira.ports);
+            // self.ports(self.settings.settings.plugins.Ira.ports);
             // self.cmd(self.settings.settings.plugins.Ira.cmd());
         }
     }

@@ -5,7 +5,7 @@ from cobs import cobs
 from struct import pack
 # from os import excel
 from glob import glob
-port = '/dev/ttyUSB1'
+# port = '/dev/ttyUSB1'
 baud = 1200
 # from time import sleep
 
@@ -53,21 +53,27 @@ class Ira(octoprint.plugin.StartupPlugin,
 		self._logger.info('timer stopped')
 
 	progress = None
-	ports = None
-	try:
-		# ports = [p for p in glob('/dev/ttyUSB[0-9]')]
-		# _logger.info('found ports %s' % ports)
-			#excel(["udevadm", "info", "-a", "-n", port])
-		ports = interface.get_connection_options()
+	# ports = None
+	ports = interface.get_connection_options()
+	serial = None
+	status = 'disconnected'
 
-		serial = Serial(port, baud, )
-	except:
-		# _logger.error('unable to connect to Ira!')
-		serial = None
+	def connect(self, port):
+		try:
+			# ports = [p for p in glob('/dev/ttyUSB[0-9]')]
+			# _logger.info('found ports %s' % ports)
+				#excel(["udevadm", "info", "-a", "-n", port])
+			self._logger.info('connecting to %s' % port)
+			self.serial = Serial(port, baud, )
+			self.status = 'connected'
+		except:
+			_logger.error('unable to connect to Ira!')
+			serial = None
 
+	# connect(ports)
 	def send(self, *args):
 		p = cobs.encode(pack('>{}B'.format(len(args)), *args)) + b'\x00'
-		if self.serial is not None:
+		if self.serial:
 			self.serial.write(p)
 		else:
 			self._logger.warn("Ira not connected")
@@ -138,6 +144,7 @@ class Ira(octoprint.plugin.StartupPlugin,
 	def on_startup(self, a, b):
 		self._logger.info("pIra starting! %s %s" % (a, b) )
 		self._logger.info("available connections: %s" % self.ports['ports'])
+		self.connect(self.ports['ports'][0])
 	def on_after_startup(self):
 		self._logger.info("pIra running!")
 		self._settings.get(["url"])

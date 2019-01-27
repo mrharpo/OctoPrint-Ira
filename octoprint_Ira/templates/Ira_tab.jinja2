@@ -1,10 +1,12 @@
 <div class="input">
     <select data-bind="options: settings.settings.plugins.Ira.ports"></select>
+<button class="btn" data-bind:"click: toggleConnect text:settings.settings.plugins.Ira.status "></button>
 </div>
+
 <div class="input-append">
-    <input type="text" class="input-xxlarge" data-bind="value: newUrl" />
+    <input class="input-xxlarge" data-bind="textInput: newUrl" />
     <button class="btn btn-primary" data-bind="click: sendSerial">{{ _('Go') }}</button><br>
-    <input type="text" data-bind="value: log" />
+    <pre data-bind="textInput: log" />
     <!-- <select multiple="multiple" data-bind="value: cmd, valueUpdate: afterkeydown" /> -->
 </div>
 

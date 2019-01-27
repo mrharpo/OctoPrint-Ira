@@ -33,7 +33,7 @@ plugin_url = "https://github.com/mrharpo/OctoPrint-Ira"
 plugin_license = "MIT"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ['cobs']
+plugin_requires = ['cobs', 'pyserial']
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
